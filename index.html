@@ -117,7 +117,7 @@
                         <p class="text-slate-400 text-sm font-medium">Used Data</p>
                         <i data-lucide="database" class="text-indigo-400 w-5 h-5"></i>
                     </div>
-                    <h3 id="display-data-balance" class="text-3xl font-bold mb-1">2.4 GB</h3>
+                    <h3 id="display-balance" class="text-3xl font-bold mb-1">2.4 GB</h3>
                 </div>
                 <div class="mt-6">
                     <div class="w-full bg-slate-800 rounded-full h-1.5 mb-2">
@@ -221,7 +221,7 @@
             setTimeout(() => {
                 const bonus = 2.0; // Assume voucher is worth 2GB
                 currentBalance += bonus;
-                document.getElementById('display-data-balance').innerText = `${currentBalance.toFixed(1)} GB`;
+                document.getElementById('display-balance').innerText = `${currentBalance.toFixed(1)} GB`;
                 input.value = "";
                 showNotification(`Successfully redeemed ${bonus}GB!`, "success");
             }, 1500);
