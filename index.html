@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftConnect | Prepaid WiFi</title>
+    <!-- Tailwind CSS for utility styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: white;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+        }
+
+        .glow-button {
+            transition: all 0.3s ease;
+            box-shadow: 0 0 0 rgba(99, 102, 241, 0);
+        }
+
+        .glow-button:hover {
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .tab-active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        .bundle-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bundle-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        #notification-host {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div id="notification-host"></div>
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8">
+            <div class="flex items-center gap-2">
+                <div class="bg-indigo-600 p-2 rounded-xl">
+                    <i data-lucide="wifi" class="w-6 h-6 text-white"></i>
+                </div>
+                <h1 class="text-2xl font-bold tracking-tight">SwiftConnect</h1>
+            </div>
+            <div class="text-right">
+                <p class="text-xs text-slate-400 uppercase tracking-widest">Status</p>
+                <div class="flex items-center gap-2 text-green-400 font-semibold">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    Connected
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Balance Card -->
+            <div class="glass-card p-6 md:col-span-1 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-4">
+                        <p class="text-slate-400 text-sm font-medium">Your Data</p>
+                        <i data-lucide="database" class="text-indigo-400 w-5 h-5"></i>
+                    </div>
+                    <h2 id="display-balance" class="text-4xl font-bold mb-1">2.4 GB</h2>
+                    <p class="text-xs text-slate-500">Expires in 12 hours</p>
+                </div>
+                <div class="mt-6">
+                    <div class="w-full bg-slate-800 rounded-full h-1.5 mb-2">
+                        <div class="bg-indigo-500 h-1.5 rounded-full" style="width: 65%"></div>
+                    </div>
+                    <p class="text-[10px] text-slate-400 text-right">65% Remaining</p>
+                </div>
+            </div>
+
+            <!-- Time Balance Card -->
+            <div class="glass-card p-6 md:col-span-1 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-4">
+                        <p class="text-slate-400 text-sm font-medium">Time Left</p>
+                        <i data-lucide="clock" class="text-purple-400 w-5 h-5"></i>
+                    </div>
+                    <h2 id="display-time" class="text-4xl font-bold mb-1">Unlimited</h2>
+                    <p class="text-xs text-slate-500">Based on bundle type</p>
+                </div>
+                <div class="mt-6">
+                    <button onclick="scrollToBundles()" class="text-xs font-semibold text-indigo-400 flex items-center gap-1 hover:text-indigo-300 transition-colors">
+                        View active sessions <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Redemptive Action -->
+            <div class="glass-card p-6 md:col-span-1 border-indigo-500/30 bg-indigo-500/5">
+                <p class="text-slate-400 text-sm font-medium mb-4">Redeem Voucher</p>
+                <div class="space-y-3">
+                    <input type="text" id="voucher-input" placeholder="XXXX-XXXX-XXXX" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-center tracking-widest focus:outline-none focus:border-indigo-500 transition-all font-mono">
+                    <button onclick="handleRedeem()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl glow-button flex justify-center items-center gap-2">
+                        <i data-lucide="ticket" class="w-5 h-5"></i> Redeem Now
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="flex border-b border-slate-800 mb-8 overflow-x-auto no-scrollbar">
+            <button class="px-6 py-4 font-semibold text-sm transition-all tab-active whitespace-nowrap">Available Bundles</button>
+            <button class="px-6 py-4 font-semibold text-sm text-slate-400 hover:text-white transition-all whitespace-nowrap">Usage History</button>
+            <button class="px-6 py-4 font-semibold text-sm text-slate-400 hover:text-white transition-all whitespace-nowrap">Promos</button>
+            <button class="px-6 py-4 font-semibold text-sm text-slate-400 hover:text-white transition-all whitespace-nowrap">Help Center</button>
+        </div>
+
+        <!-- Data Bundles Section -->
+        <div id="bundles-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 pb-12">
+            <!-- Bundle items will be injected by JS -->
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center text-slate-500 text-sm pb-8 border-t border-slate-800 pt-8">
+            <p>© 2024 SwiftConnect Networks. All rights reserved.</p>
+            <div class="flex justify-center gap-4 mt-4">
+                <a href="#" class="hover:text-indigo-400">Terms of Service</a>
+                <a href="#" class="hover:text-indigo-400">Privacy Policy</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Purchase Modal -->
+    <div id="modal-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[200]">
+        <div class="glass-card w-full max-w-md p-8 relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i data-lucide="x"></i>
+            </button>
+            <div id="modal-content" class="text-center">
+                <!-- Content injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration & Data
+        const BUNDLES = [
+            { id: 1, name: "Starter Kit", data: "1 GB", duration: "1 Day", price: 10, popular: false, icon: 'zap' },
+            { id: 2, name: "Power User", data: "5 GB", duration: "3 Days", price: 40, popular: true, icon: 'flame' },
+            { id: 3, name: "Weekly Pro", data: "15 GB", duration: "7 Days", price: 90, popular: false, icon: 'shield' },
+            { id: 4, name: "Mega Stream", data: "Unlimited", duration: "24 Hours", price: 35, popular: false, icon: 'play' },
+            { id: 5, name: "Night Owl", data: "10 GB", duration: "12 AM - 6 AM", price: 15, popular: false, icon: 'moon' },
+            { id: 6, name: "Work Station", data: "30 GB", duration: "30 Days", price: 250, popular: false, icon: 'briefcase' }
+        ];
+
+        let currentBalance = 2.4; // GB
+
+        // Initialize UI
+        window.onload = () => {
+            renderBundles();
+            lucide.createIcons();
+        };
+
+        function renderBundles() {
+            const grid = document.getElementById('bundles-grid');
+            grid.innerHTML = BUNDLES.map(bundle => `
+                <div class="bundle-card glass-card p-6 flex flex-col justify-between relative overflow-hidden ${bundle.popular ? 'border-indigo-500 ring-1 ring-indigo-500/50' : ''}">
+                    ${bundle.popular ? '<div class="absolute top-0 right-0 bg-indigo-500 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-tighter">Most Popular</div>' : ''}
+                    <div>
+                        <div class="bg-slate-800 w-10 h-10 rounded-lg flex items-center justify-center mb-4">
+                            <i data-lucide="${bundle.icon}" class="w-5 h-5 text-indigo-400"></i>
+                        </div>
+                        <h3 class="text-lg font-bold">${bundle.name}</h3>
+                        <div class="flex items-baseline gap-1 mt-1">
+                            <span class="text-2xl font-bold text-white">${bundle.data}</span>
+                            <span class="text-xs text-slate-400">/ ${bundle.duration}</span>
+                        </div>
+                    </div>
+                    <button onclick="confirmPurchase(${bundle.id})" class="mt-6 w-full py-3 rounded-xl font-bold transition-all ${bundle.popular ? 'bg-indigo-600 hover:bg-indigo-500' : 'bg-slate-800 hover:bg-slate-700'}">
+                        ₱${bundle.price.toFixed(2)}
+                    </button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // Logic Functions
+        function handleRedeem() {
+            const input = document.getElementById('voucher-input');
+            const code = input.value.trim();
+
+            if (code.length < 5) {
+                showNotification("Invalid Voucher Code", "error");
+                return;
+            }
+
+            // Simulate API Call
+            showNotification("Validating...", "info");
+            
+            setTimeout(() => {
+                const bonus = 2.0; // Assume voucher is worth 2GB
+                currentBalance += bonus;
+                document.getElementById('display-balance').innerText = `${currentBalance.toFixed(1)} GB`;
+                input.value = "";
+                showNotification(`Successfully redeemed ${bonus}GB!`, "success");
+            }, 1500);
+        }
+
+        function confirmPurchase(id) {
+            const bundle = BUNDLES.find(b => b.id === id);
+            const modal = document.getElementById('modal-overlay');
+            const content = document.getElementById('modal-content');
+            
+            content.innerHTML = `
+                <div class="bg-indigo-600/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="shopping-cart" class="w-8 h-8 text-indigo-400"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-2">Confirm Purchase</h2>
+                <p class="text-slate-400 mb-6">Are you sure you want to purchase <b>${bundle.name}</b> for <b>₱${bundle.price.toFixed(2)}</b>?</p>
+                <div class="space-y-3">
+                    <button onclick="processPurchase(${bundle.id})" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-bold glow-button">Confirm Payment</button>
+                    <button onclick="closeModal()" class="w-full text-slate-400 hover:text-white py-2 text-sm">Cancel</button>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function processPurchase(id) {
+            const bundle = BUNDLES.find(b => b.id === id);
+            closeModal();
+            showNotification("Processing payment...", "info");
+            
+            setTimeout(() => {
+                if(bundle.data !== "Unlimited") {
+                    const amount = parseFloat(bundle.data);
+                    currentBalance += amount;
+                    document.getElementById('display-balance').innerText = `${currentBalance.toFixed(1)} GB`;
+                } else {
+                    document.getElementById('display-time').innerText = "24H ACTIVE";
+                    document.getElementById('display-time').classList.add('text-indigo-400');
+                }
+                showNotification(`${bundle.name} Activated!`, "success");
+            }, 2000);
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.add('hidden');
+        }
+
+        function scrollToBundles() {
+            document.getElementById('bundles-grid').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showNotification(msg, type) {
+            const host = document.getElementById('notification-host');
+            const toast = document.createElement('div');
+            
+            const colors = {
+                success: 'border-green-500/50 bg-green-500/10 text-green-400',
+                error: 'border-red-500/50 bg-red-500/10 text-red-400',
+                info: 'border-blue-500/50 bg-blue-500/10 text-blue-400'
+            };
+
+            toast.className = `glass-card px-6 py-4 mb-3 border ${colors[type]} flex items-center gap-3 animate-bounce-in min-w-[280px]`;
+            toast.innerHTML = `
+                <div class="flex-1 font-medium">${msg}</div>
+            `;
+            
+            host.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100px)';
+                toast.style.transition = 'all 0.5s ease';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
