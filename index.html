@@ -111,13 +111,19 @@
             </div>
 
             <!-- Redemptive Action -->
-            <div class="glass-card p-6 md:col-span-1 border-indigo-500/30 bg-indigo-500/5">
-                <p class="text-slate-400 text-sm font-medium mb-4">Redeem Voucher</p>
-                <div class="space-y-3">
-                    <input type="text" id="voucher-input" placeholder="XXXX-XXXX-XXXX" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-center tracking-widest focus:outline-none focus:border-indigo-500 transition-all font-mono">
-                    <button onclick="handleRedeem()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl glow-button flex justify-center items-center gap-2">
-                        <i data-lucide="ticket" class="w-5 h-5"></i> Recharge
-                    </button>
+            <div class="glass-card p-6 md:col-span-1 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-4">
+                        <p class="text-slate-400 text-sm font-medium">Used Data</p>
+                        <i data-lucide="database" class="text-indigo-400 w-5 h-5"></i>
+                    </div>
+                    <h2 id="display-balance" class="text-4xl font-bold mb-1">2.4 GB</h2>
+                </div>
+                <div class="mt-6">
+                    <div class="w-full bg-slate-800 rounded-full h-1.5 mb-2">
+                        <div class="bg-indigo-500 h-1.5 rounded-full" style="width: 65%"></div>
+                    </div>
+                    <p class="text-[10px] text-slate-400 text-right">65% more than last month</p>
                 </div>
             </div>
         </div>
